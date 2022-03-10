@@ -343,35 +343,35 @@ int	ft_exit (t_list *orgs) // exit не работает при наличии �
 	int				i;
 	char			*vs;
 
-	orgs = orgs->next;
+//	orgs = orgs->next;
 	if (orgs == NULL)
+	{
 		write (1, "exit\n", 5);
+		i = get_last_status();
+		exit (i);
+	}
+	znak = ft_pre_atoi_znak(orgs->content);
+	num = ft_pre_atoi(orgs->content, 0, znak);
+	write (1, "exit\n", 5);
+	if (num == 12345678901234567890U)
+	{
+		write (1, "minishell: exit: ", 17);
+		i = 0;
+		vs = (char*) orgs->content;
+		while (vs[i] != '\0')
+		{
+			write (1, &vs[i], 1);
+			i++;
+		}
+		write (1, ": numeric argument required\n", 28);
+		exit (255);
+	}
 	else
 	{
-		znak = ft_pre_atoi_znak(orgs->content);
-		num = ft_pre_atoi(orgs->content, 0, znak);
-		write (1, "exit\n", 5);
-		if (num == 12345678901234567890U)
-		{
-			write (1, "minishell: exit: ", 17);
-			i = 0;
-			vs = (char*) orgs->content;
-			while (vs[i] != '\0')
-			{
-				write (1, &vs[i], 1);
-				i++;
-			}
-			write (1, ": numeric argument required\n", 28);
-			return (255);
-		}
-		else
-		{
-			ret = num * znak;
-			i = (unsigned char) ret;
-			return (i);
-		}
+		ret = num * znak;
+		i = (unsigned char) ret;
+		exit (i);
 	}
-	return (0);
 }
 
 int	ft_env(t_list *orgs) // нужно расширение для попытки внести как аргумент путь!
@@ -478,9 +478,9 @@ int	ft_export(t_list *orgs) // с пайпом до или после работ
 		else
 			s2 = NULL;
 		set_value(&g_data.env, s1, s2);
-		free (s1);
-		if (vs[j] != '\0')
-			free (s2);
+	//	free (s1);
+	//	if (vs[j] != '\0')
+	//		free (s2);
 	}
 	return (0);
 }
@@ -503,68 +503,15 @@ int	ft_pwd(t_list *orgs)
 	return (0);
 }
 
-/*
-int	ft_pwd_uppdate(t_bilt_data *bdata)
-{
-	int	i;
-	int	j;
-	int	size;
-	char	*old_pwd;
-
-	j = 0;
-	i = ft_strncmp(bdata->env[j], "PWD=", 4);
-	while (i != 0)
-	{
-		j++;
-		i = ft_strncmp(bdata->env[j], "PWD=", 4);
-	}
-	size = ft_strlen(bdata->env[j]) - 4;
-	old_pwd = malloc(sizeof(char) * (size + 1));
-	if (old_pwd == NULL)
-		return (-1);
-	size = 0;
-	while (bdata->env[j][size + 4] != '\0')
-	{
-		old_pwd[size] = bdata->env[j][size + i];
-		size++;
-	}
-	old_pwd[size + 1] = '\0';
-	j = 0;
-	while (bdata->env[j] != NULL)
-	{
-		if ((ft_strncmp(bdata->env[j], "OLDPWD=", 7) == 0))
-		{
-			free (bdata->env[j]);
-			bdata->env[j] = NULL;
-		}
-		j++;
-	}
-	bdata->env[j] = ft_strjoin("OLDPWD=", old_pwd);
-	j = 0;
-	while (bdata->env[j] != NULL)
-	{
-		if ((ft_strncmp(bdata->env[j], "PWD=", 4) == 0))
-		{
-			free (bdata->env[j]);
-		//	bdata->env[j] = NULL;
-			bdata->env[j] = getenv("PWD");
-		}
-		j++;
-	}
-//	bdata->env[j] = ft_strjoin ("PWD=", bdata->args[bdata->com_num]);
-	return (0);
-}
-*/
-
 int	ft_cd(t_list *orgs)
 {
 	int		ret;
 	int		i;
 	char	*str;
 	char	*vs;
+	char	pwd[4000];
 
 	orgs = orgs->next;
-	write (1, "A", 1);
 	if (orgs != NULL)
 	{
 		ret = chdir(orgs->content);
@@ -581,24 +528,24 @@ int	ft_cd(t_list *orgs)
 			write (1, ": No such file or directory\n", 28);
 			return (1); //Код ошибки как в Баш
 		}
-	//	ft_pwd_uppdate(bdata);
 		str = get_value (g_data.env, "PWD");
 		set_value(&g_data.env, "OLDPWD", str);
-	//	free (str);
-		str = getenv("PWD");
-		set_value(&g_data.env, "PWD", str);
-	//	free (str);
+		getcwd(pwd, 4000);
+		set_value(&g_data.env, "PWD", pwd);
 	}
 	else
 	{
 		str = get_value(g_data.env, "HOME");
 		ret = chdir(str);
+		str = get_value (g_data.env, "PWD");
+		set_value(&g_data.env, "OLDPWD", str);
+		getcwd(pwd, 4000);
+		set_value(&g_data.env, "PWD", pwd);
 	//	free (str);
 	//	bdata->dupl = ft_convert(bdata, "HOME");
 	//	ret = chdir(bdata->dupl);
 	//	free (bdata->dupl);
 	}
-	write (1, "A", 1);
 	return (ret);
 }
 
@@ -635,27 +582,3 @@ int	ft_echo(t_list *orgs)
 		write (1, "\n", 1);
 	return (0);
 }
-
-
-/*
-int	main (int argc, char **argv, char *evn[])
-{
-	t_data	*g_data;
-	int		ret;
-	t_list	**spis;
-
-	g_data = malloc (sizeof (t_data));
-	spis = malloc (sizeof (t_list *) * 2000);
-	orgs = ft_lstnew(argv[1]);
-	ret = 2;
-	while (ret != argc)
-	{
-		spis[ret] = ft_lstnew(argv[ret]);
-		ft_lstadd_front(&orgs, spis[ret]);
-		ret++;
-	}
-//	ret = ft_bilt_start(orgs, g_data);
-	ret = ft_bilt_start(g_data);
-	return (ret);
-}
-*/
