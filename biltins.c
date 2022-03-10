@@ -344,7 +344,7 @@ int	ft_exit (t_list *orgs) // exit не работает при наличии �
 	char			*vs;
 
 	orgs = orgs->next;
-	if (orgs->content == NULL)
+	if (orgs == NULL)
 		write (1, "exit\n", 5);
 	else
 	{
@@ -381,17 +381,28 @@ int	ft_env(t_list *orgs) // нужно расширение для попытк�
 
 	orgs = orgs->next;
 	i = 0;
-	if (orgs->content == NULL)
+	if (orgs == NULL)
 	{
 		while (g_data.env != NULL)
 		{
 			i = 0;
-			vs = (char*) orgs->content;
-			while (vs[i] != '\0')
+			while (g_data.env->key[i] != '\0')
 			{
-				write (1, &vs[i], 1);
+				write (1, &g_data.env->key[i], 1);
 				i++;
 			}
+			if (g_data.env->value != NULL)
+				write (1, "=", 1);
+			i = 0;
+			if (g_data.env->value != NULL)
+			{
+				while (g_data.env->value[i] != '\0')
+				{
+					write (1, &g_data.env->value[i], 1);
+					i++;
+				}
+			}
+			write (1, "\n", 1);
 			g_data.env = g_data.env->next;
 		}
 	}
@@ -412,7 +423,7 @@ int	ft_env(t_list *orgs) // нужно расширение для попытк�
 int	ft_unset(t_list *orgs)
 {
 	orgs = orgs->next;
-	if (orgs->content != NULL)
+	if (orgs != NULL)
 		unset_value(&g_data.env, orgs->content);
 	return (0);
 }
@@ -429,27 +440,36 @@ int	ft_export(t_list *orgs) // с пайпом до или после работ
 //	have_pipe = 0;
 	j = 0;
 	orgs = orgs->next;
-	if (orgs->content == NULL)
+	if (orgs == NULL)
 	{
 		while (g_data.env != NULL)
 		{
 			i = 0;
-			write (1, "declare -x", 10);
-			while (g_data.env->value[i] != '=')
-				i++;
-			while (g_data.env->value[i] != '\0')
+			write (1, "declare -x ", 11);
+			while (g_data.env->key[i] != '\0')
 			{
-				write (1, &g_data.env->value[i], 1);
+				write (1, &g_data.env->key[i], 1);
 				i++;
 			}
-			write (1, "\n", 1);
+			if (g_data.env->value != NULL)
+				write (1, "=\"", 2);
+			i = 0;
+			if (g_data.env->value != NULL)
+			{
+				while (g_data.env->value[i] != '\0')
+				{
+					write (1, &g_data.env->value[i], 1);
+					i++;
+				}
+			}
+			write (1, "\"\n", 2);
 			g_data.env = g_data.env->next;
 		}
 	}
 	else // if ((have_pipe == 0) && (bdata->piped == 0))
 	{
 		vs = (char *) orgs->content;
-		while ((vs[j] != '=') || (vs[j] != '\0'))
+		while ((vs[j] != '=') && (vs[j] != '\0'))
 			j++;
 		s1 = ft_substr(orgs->content, 0, j);
 		i = ft_strlen(orgs->content);
@@ -544,12 +564,13 @@ int	ft_cd(t_list *orgs)
 	char	*vs;
 
 	orgs = orgs->next;
-	if (orgs->content != NULL)
+	write (1, "A", 1);
+	if (orgs != NULL)
 	{
 		ret = chdir(orgs->content);
 		if (ret != 0)
 		{
-			write (1, "minishell: cd:", 14);
+			write (1, "minishell: cd: ", 15);
 			i = 0;
 			vs = (char*) orgs->content;
 			while (vs[i] !='\0')
@@ -572,11 +593,12 @@ int	ft_cd(t_list *orgs)
 	{
 		str = get_value(g_data.env, "HOME");
 		ret = chdir(str);
-		free (str);
+	//	free (str);
 	//	bdata->dupl = ft_convert(bdata, "HOME");
 	//	ret = chdir(bdata->dupl);
 	//	free (bdata->dupl);
 	}
+	write (1, "A", 1);
 	return (ret);
 }
 
@@ -588,22 +610,26 @@ int	ft_echo(t_list *orgs)
 
 	n = 0;
 	orgs = orgs->next;
-	if (ft_strncmp(orgs->content, "-n\0", 3) == 0)
+	if (orgs != NULL)
 	{
-		n = 1;
-		orgs = orgs->next;
-	}
-	while (orgs->content != NULL)
-	{
-		i = 0;
-		vs = (char*) orgs->content;
-		while (vs[i] != '\0')
+		if (ft_strncmp(orgs->content, "-n\0", 3) == 0)
 		{
-			write (1, &vs[i], 1);
-			i++;
+			n = 1;
+			orgs = orgs->next;
 		}
-		write (1, " ", 1);
-		orgs = orgs->next;
+		while (orgs != NULL)
+		{
+			i = 0;
+			vs = (char*) orgs->content;
+			while (vs[i] != '\0')
+			{
+				write (1, &vs[i], 1);
+				i++;
+			}
+			orgs = orgs->next;
+			if (orgs != NULL)
+				write (1, " ", 1);
+		}
 	}
 	if (n == 0)
 		write (1, "\n", 1);
