@@ -1,4 +1,3 @@
-#include "exec_stmnt.h"
 #include "syntax.h"
 #include "biltins.h"
 
@@ -23,27 +22,27 @@ int ft_is_bilt(t_list *orgs)
         return (0);
 }
 
-int	ft_bilt_start(t_list *orgs, t_data *data)
+int ft_bilt_start(t_list *orgs)
 {
     int	ret;
 
     ret = 127;
     if (ft_strncmp(orgs->content, "echo\0", 5) == 0)
-        ret = ft_echo(orgs, data);
+        ret = ft_echo(orgs);
     if (ft_strncmp(orgs->content, "cd\0", 3) == 0)
-        ret = ft_cd(orgs, data);
+        ret = ft_cd(orgs);
     if (ft_strncmp(orgs->content, "pwd\0", 4) == 0)
-        ret = ft_pwd(orgs, data);
+        ret = ft_pwd(orgs);
     if (ft_strncmp(orgs->content, "export\0", 7) == 0)
-        ret = ft_export(orgs, data);
+        ret = ft_export(orgs);
     if (ft_strncmp(orgs->content, "unset\0", 6) == 0)
-        ret = ft_unset(orgs, data);
+        ret = ft_unset(orgs);
     if (ft_strncmp(orgs->content, "env\0", 4) == 0)
-        ret = ft_env(orgs, data);
+        ret = ft_env(orgs);
     if (ft_strncmp(orgs->content, "exit\0", 5) == 0)
 	{
 		orgs = orgs->next;
-        ret = ft_exit(orgs, data);
+        ret = ft_exit(orgs);
 	}
     return (ret);
 }

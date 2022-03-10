@@ -9,6 +9,7 @@ int	ft_export(t_list *orgs);
 int	ft_pwd(t_list *orgs);
 int	ft_cd(t_list *orgs);
 int	ft_echo(t_list *orgs);
-int	ft_bilt_start(t_list *orgs);
+int ft_is_bilt(t_list *orgs);
+int ft_bilt_start(t_list *orgs);
 
 #endif

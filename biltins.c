@@ -346,24 +346,24 @@ int	ft_exit (t_list *orgs) // exit не работает при наличии �
 //	orgs = orgs->next;
 	if (orgs == NULL)
 	{
-		write (1, "exit\n", 5);
+		write (2, "exit\n", 5);
 		i = get_last_status();
 		exit (i);
 	}
 	znak = ft_pre_atoi_znak(orgs->content);
 	num = ft_pre_atoi(orgs->content, 0, znak);
-	write (1, "exit\n", 5);
+	write (2, "exit\n", 5);
 	if (num == 12345678901234567890U)
 	{
-		write (1, "minishell: exit: ", 17);
+		write (2, "minishell: exit: ", 17);
 		i = 0;
 		vs = (char*) orgs->content;
 		while (vs[i] != '\0')
 		{
-			write (1, &vs[i], 1);
+			write (2, &vs[i], 1);
 			i++;
 		}
-		write (1, ": numeric argument required\n", 28);
+		write (2, ": numeric argument required\n", 28);
 		exit (255);
 	}
 	else
@@ -531,7 +531,8 @@ int	ft_cd(t_list *orgs)
 		str = get_value (g_data.env, "PWD");
 		set_value(&g_data.env, "OLDPWD", str);
 		getcwd(pwd, 4000);
-		set_value(&g_data.env, "PWD", pwd);
+		str = ft_strdup(pwd);
+		set_value(&g_data.env, "PWD", str);
 	}
 	else
 	{
@@ -540,7 +541,8 @@ int	ft_cd(t_list *orgs)
 		str = get_value (g_data.env, "PWD");
 		set_value(&g_data.env, "OLDPWD", str);
 		getcwd(pwd, 4000);
-		set_value(&g_data.env, "PWD", pwd);
+		str = ft_strdup(pwd);
+		set_value(&g_data.env, "PWD", str);
 	//	free (str);
 	//	bdata->dupl = ft_convert(bdata, "HOME");
 	//	ret = chdir(bdata->dupl);
@@ -559,7 +561,7 @@ int	ft_echo(t_list *orgs)
 	orgs = orgs->next;
 	if (orgs != NULL)
 	{
-		if (ft_strncmp(orgs->content, "-n\0", 3) == 0)
+		while ((orgs != NULL) && (ft_strncmp(orgs->content, "-n\0", 3) == 0))
 		{
 			n = 1;
 			orgs = orgs->next;
