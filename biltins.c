@@ -514,6 +514,11 @@ int	ft_cd(t_list *orgs)
 	orgs = orgs->next;
 	if (orgs != NULL)
 	{
+		if ((getcwd(pwd, 4000) == NULL) && (ft_strncmp(orgs->content, ".\0", 2) == 0))
+		{
+			write (2, "cd: error retrieving current directory: getcwd: cannot access parent directories: No such file or directory\n", 108);
+			return (0);
+		}
 		ret = chdir(orgs->content);
 		if (ret != 0)
 		{
