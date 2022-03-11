@@ -109,11 +109,12 @@ int	ft_exit (t_list *orgs) // exit не работает при наличии �
 		write (2, "minishell: exit: ", 17);
 		i = 0;
 		vs = (char*) orgs->content;
-		while (vs[i] != '\0')
-		{
-			write (2, &vs[i], 1);
-			i++;
-		}
+		ft_putstr_fd(vs, 2);
+//		while (vs[i] != '\0')
+//		{
+//			write (2, &vs[i], 1);
+//			i++;
+//		}
 		write (2, ": numeric argument required\n", 28);
 		exit (255);
 	}
@@ -142,22 +143,24 @@ int	ft_env(t_list *orgs, t_env *local_env) // нужно расширение д
 		while (local_env != NULL)
 		{
 			i = 0;
-			while (local_env->key[i] != '\0')
-			{
-				write (1, &local_env->key[i], 1);
-				i++;
-			}
+			ft_putstr_fd(local_env->key, 1);
+//			while (local_env->key[i] != '\0')
+//			{
+//				write (1, &local_env->key[i], 1);
+//				i++;
+//			}
 			if (local_env->value != NULL)
 				write (1, "=", 1);
-			i = 0;
+		//	i = 0;
 			if (local_env->value != NULL)
-			{
-				while (local_env->value[i] != '\0')
-				{
-					write (1, &local_env->value[i], 1);
-					i++;
-				}
-			}
+				ft_putstr_fd(local_env->value, 1);
+//			{
+//				while (local_env->value[i] != '\0')
+//				{
+//					write (1, &local_env->value[i], 1);
+//					i++;
+//				}
+//			}
 			write (1, "\n", 1);
 			local_env = local_env->next;
 		}
@@ -166,11 +169,12 @@ int	ft_env(t_list *orgs, t_env *local_env) // нужно расширение д
 	{
 		write (2, "env: ", 5);
 		vs = (char*) orgs->content;
-		while (vs[i] != '\0')
-		{
-			write (2, &vs[i], 1);
-			i++;
-		}
+		ft_putstr_fd(vs, 2);
+//		while (vs[i] != '\0')
+//		{
+//			write (2, &vs[i], 1);
+//			i++;
+//		}
 		write (2, ": No such file or directory\n", 28);
 	}
 	return (0);
@@ -199,25 +203,29 @@ int	ft_export(t_list *orgs, t_env *local_env) // с пайпом до или п�
 	{
 		while (local_env != NULL)
 		{
-			i = 0;
+		//	i = 0;
 			write (1, "declare -x ", 11);
-			while (local_env->key[i] != '\0')
-			{
-				write (1, &local_env->key[i], 1);
-				i++;
-			}
+			ft_putstr_fd(local_env->key, 1);
+//			while (local_env->key[i] != '\0')
+//			{
+//				write (1, &local_env->key[i], 1);
+//				i++;
+//			}
 			if (local_env->value != NULL)
+			{
 				write (1, "=\"", 2);
-			i = 0;
-			if (local_env->value != NULL)
-			{
-				while (local_env->value[i] != '\0')
-				{
-					write (1, &local_env->value[i], 1);
-					i++;
-				}
+				//	i = 0;
+				ft_putstr_fd(local_env->value, 1);
+//				{
+//					while (local_env->value[i] != '\0')
+//					{
+//						write (1, &local_env->value[i], 1);
+//						i++;
+//					}
+//				}
+				write (1, "\"", 1);
 			}
-			write (1, "\"\n", 2);
+			write (1, "\n", 1);
 			local_env = local_env->next;
 		}
 	}
@@ -239,28 +247,30 @@ int	ft_export(t_list *orgs, t_env *local_env) // с пайпом до или п�
 
 int	ft_pwd(t_list *orgs, t_env *local_env)
 {
-	int		i;
+//	int		i;
 	char	pwd[4000];
 	char	*str;
 
 	orgs = orgs->next;
-	i = 0;
+//	i = 0;
 	if (getcwd(pwd, 4000) == NULL)
 	{
 		str = get_value (local_env, "PWD");
-		while (str[i] != '\0')
-		{
-			write (1, &str[i], 1);
-			i++;
-		}
+		ft_putstr_fd(str, 1);
+//		while (str[i] != '\0')
+//		{
+//			write (1, &str[i], 1);
+//			i++;
+//		}
 		write (1, "\n", 1);
 		return (0);
 	}
-	while (pwd[i] != '\0')
-	{
-		write (1, &pwd[i], 1);
-		i++;
-	}
+	ft_putstr_fd(pwd, 1);
+//	while (pwd[i] != '\0')
+//	{
+//		write (1, &pwd[i], 1);
+//		i++;
+//	}
 	write (1, "\n", 1);
 	return (0);
 }
@@ -268,7 +278,7 @@ int	ft_pwd(t_list *orgs, t_env *local_env)
 int	ft_cd(t_list *orgs, t_env *local_env)
 {
 	int		ret;
-	int		i;
+//	int		i;
 	char	*str;
 	char	*vs;
 	char	pwd[4000];
@@ -288,15 +298,26 @@ int	ft_cd(t_list *orgs, t_env *local_env)
 		ret = chdir(orgs->content);
 		if (ret != 0)
 		{
-			write (2, "minishell: cd: ", 15);
-			i = 0;
-			vs = (char*) orgs->content;
-			while (vs[i] !='\0')
+			if (errno == 20)
 			{
-				write (2, &vs[i], 1);
-				i++;
+				write (2, "minishell: cd: ", 15);
+				vs = (char*) orgs->content;
+				ft_putstr_fd(vs, 2);
+				write (2, ": Not a directory\n", 18);
 			}
-			write (2, ": No such file or directory\n", 28);
+			else
+			{
+				write (2, "minishell: cd: ", 15);
+				//	i = 0;
+				vs = (char*) orgs->content;
+				ft_putstr_fd(vs, 2);
+//				while (vs[i] !='\0')
+//				{
+//					write (2, &vs[i], 1);
+//					i++;
+//				}
+				write (2, ": No such file or directory\n", 28);
+			}
 			return (1); //Код ошибки как в Баш
 		}
 		str = get_value (local_env, "PWD");
@@ -321,7 +342,7 @@ int	ft_cd(t_list *orgs, t_env *local_env)
 int	ft_echo(t_list *orgs)
 {
 	int	n;
-	int	i;
+//	int	i;
 	char *vs;
 
 	n = 0;
@@ -335,13 +356,14 @@ int	ft_echo(t_list *orgs)
 		}
 		while (orgs != NULL)
 		{
-			i = 0;
+		//	i = 0;
 			vs = (char*) orgs->content;
-			while (vs[i] != '\0')
-			{
-				write (1, &vs[i], 1);
-				i++;
-			}
+			ft_putstr_fd(vs, 1);
+//			while (vs[i] != '\0')
+//			{
+//				write (1, &vs[i], 1);
+//				i++;
+//			}
 			orgs = orgs->next;
 			if (orgs != NULL)
 				write (1, " ", 1);
