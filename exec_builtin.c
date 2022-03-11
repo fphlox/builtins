@@ -25,20 +25,22 @@ int ft_is_bilt(t_list *orgs)
 int ft_bilt_start(t_list *orgs)
 {
     int	ret;
+	t_env	*local_env;
 
+	local_env = g_data.env;
     ret = 127;
     if (ft_strncmp(orgs->content, "echo\0", 5) == 0)
         ret = ft_echo(orgs);
     if (ft_strncmp(orgs->content, "cd\0", 3) == 0)
-        ret = ft_cd(orgs);
+        ret = ft_cd(orgs, local_env);
     if (ft_strncmp(orgs->content, "pwd\0", 4) == 0)
-        ret = ft_pwd(orgs);
+        ret = ft_pwd(orgs, local_env);
     if (ft_strncmp(orgs->content, "export\0", 7) == 0)
-        ret = ft_export(orgs);
+        ret = ft_export(orgs, local_env);
     if (ft_strncmp(orgs->content, "unset\0", 6) == 0)
-        ret = ft_unset(orgs);
+        ret = ft_unset(orgs, local_env);
     if (ft_strncmp(orgs->content, "env\0", 4) == 0)
-        ret = ft_env(orgs);
+        ret = ft_env(orgs, local_env);
     if (ft_strncmp(orgs->content, "exit\0", 5) == 0)
 	{
 		orgs = orgs->next;
